@@ -1,3 +1,25 @@
+  <a href="{{ cart }}" class="cart" title="Моя корзина" rel="nofollow">
+    <i class="fa fa-shopping-cart"></i>
+    <span class="text">Моя корзина</span>
+    <span class="qnt_cont">
+      <span class="qnt">{{ cart_product_count }}</span>
+    </span>
+  </a>
+  <span class="sum_cont">
+    <span class="sum" data-sum="0" data-separator=" " data-decimal="0" data-dec-point=".">
+      <span id="cartCounter">{{ total_value }}</span>
+      <span class="curr"> руб.</span>
+    </span>
+  </span>
+  <div class="oformit_cont">
+    {% if products %}
+    <div class="foot_panel_2"><a class="btn_buy popdef oformit" href="{{ checkout }}">Оформить</a></div>
+    {% else %}
+    <div class="btn_buy oformit dsbl">Оформить</div>
+    {% endif %}
+  </div>
+
+{#}
 <div id="cart" class="btn-group btn-block">
   <button type="button" data-toggle="dropdown" data-loading-text="{{ text_loading }}" class="btn btn-inverse btn-block btn-lg dropdown-toggle"><i class="fa fa-shopping-cart"></i> <span id="cart-total">{{ text_items }}</span></button>
   <ul class="dropdown-menu pull-right">
@@ -45,7 +67,8 @@
     {% else %}
     <li>
       <p class="text-center">{{ text_empty }}</p>
-    </li>
+    </li> 
     {% endif %}
   </ul>
 </div>
+#}

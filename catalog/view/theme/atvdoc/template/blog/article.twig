@@ -1,4 +1,89 @@
 {{ header }}
+
+<div class="content-wrapper">
+  <div class="center inner">
+    <div class="content">
+      <div class="left-column">
+
+        {{ column_left }}
+
+        {{ column_right }}
+
+
+      </div>
+
+      <div class="workarea {{ class }}" id="content">
+        <div class="body_text">
+
+          <div class="breadcrumb-share">
+            <div id="navigation" class="breadcrumb">
+              <div class="breadcrumb__item" id="breadcrumb_0" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"
+                itemref="breadcrumb_1"><a class="breadcrumb__link" href="/" title="Главная" itemprop="url"><i
+                    class="fa fa-home breadcrumb__icon_main"></i><span class="breadcrumb__title_main"
+                    itemprop="title">Главная</span></a></div>
+              <div class="breadcrumb__item" id="breadcrumb_1" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"
+                itemprop="child"><span class="breadcrumb__arrow"></span><a class="breadcrumb__link" href="/news/" title="Новости"
+                  itemprop="url"><span class="breadcrumb__title" itemprop="title">Новости</span></a></div>
+              <div class="breadcrumb__item"><span class="breadcrumb__arrow"></span><span class="breadcrumb__title">{{ heading_title }}</span></div>
+            </div>
+    
+          </div>
+
+
+
+        <h1 id="pagetitle">{{ heading_title }}</h1>
+        {{ content_top }}
+
+   
+
+          <div class="news-detail">
+                {% if thumb or images %}
+                  {% if thumb %}
+                      <div class="news-detail__picture" title="{{ heading_title }}" style="background-image:url('{{ thumb }}');"></div>
+                  {% endif %}
+                  {% if images %}
+                    {% for image in images %}
+                        <div class="news-detail__picture" title="{{ heading_title }}" style="background-image:url('{{ image.thumb }}');"></div>
+                    {% endfor %}
+                  {% endif %}
+                {% endif %}
+
+            <div class="news-detail__date-wrap">
+              <div class="news-detail__date">{{ date_added }}</div>
+            </div>
+            <div class="news-detail__text">
+              <p>
+                  {{ description }}
+              </p>
+            </div>
+          </div>
+
+
+
+        {{ content_bottom }}
+      
+   
+  </div>
+  </div>
+  </div>    
+</div>  
+
+
+{{ footer }}
+
+
+
+
+
+
+
+
+
+
+{#}
+
+
+
 <div id="product-product" class="container">
   <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
@@ -402,4 +487,5 @@ $(document).ready(function() {
   
 });
 --></script>
-{{ footer }} 
+
+#}

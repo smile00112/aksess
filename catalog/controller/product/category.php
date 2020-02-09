@@ -51,12 +51,12 @@ class ControllerProductCategory extends Controller {
 		}
 
 		$data['breadcrumbs'] = array();
-
+/*
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
 			'href' => $this->url->link('common/home')
 		);
-
+*/
 		if (isset($this->request->get['path'])) {
 			$url = '';
 
@@ -126,7 +126,7 @@ class ControllerProductCategory extends Controller {
 			// Set the last category breadcrumb
 			$data['breadcrumbs'][] = array(
 				'text' => $category_info['name'],
-				'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'])
+				//'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'])
 			);
 
 			if ($category_info['image']) {
@@ -134,7 +134,7 @@ class ControllerProductCategory extends Controller {
 			} else {
 				$data['thumb'] = '';
 			}
-
+			$data['category_name'] =  $category_info['name'];
 			$data['description'] = html_entity_decode($category_info['description'], ENT_QUOTES, 'UTF-8');
 			$data['compare'] = $this->url->link('product/compare');
 
@@ -168,7 +168,8 @@ class ControllerProductCategory extends Controller {
 
 				$data['categories'][] = array(
 					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url)
+					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url),
+					'thumb' => ($result['image']) ? $this->model_tool_image->resize($result['image'], 500, 500) : '',
 				);
 			}
 
@@ -184,7 +185,8 @@ class ControllerProductCategory extends Controller {
 			);
 
 			$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
-
+			$data['product_total'] = $product_total;
+			
 			$results = $this->model_catalog_product->getProducts($filter_data);
 
 			foreach ($results as $result) {
@@ -199,7 +201,8 @@ class ControllerProductCategory extends Controller {
 				} else {
 					$price = false;
 				}
-
+				
+				
 				if ((float)$result['special']) {
 					$special = $this->currency->format($this->tax->calculate($result['special'], $result['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
 				} else {
@@ -221,9 +224,12 @@ class ControllerProductCategory extends Controller {
 				$data['products'][] = array(
 					'product_id'  => $result['product_id'],
 					'thumb'       => $image,
+					'mpn'        => $result['mpn'],
+					'quantity' =>  $result['quantity'],
 					'name'        => $result['name'],
 					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
 					'price'       => $price,
+					'price_not_formated' => number_format( $this->tax->calculate($result['price'], $result['tax_class_id'], $this->config->get('config_tax')), 0, '.', ' ').' руб.',
 					'special'     => $special,
 					'tax'         => $tax,
 					'minimum'     => $result['minimum'] > 0 ? $result['minimum'] : 1,
@@ -249,12 +255,26 @@ class ControllerProductCategory extends Controller {
 				'value' => 'p.sort_order-ASC',
 				'href'  => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.sort_order&order=ASC' . $url)
 			);
+			
+			if( $sort == 'p.sort_order'){
+				if($order == 'ASC') $data['sort_sort_order'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.sort_order&order=DESC' . $url);
+				else  $data['sort_sort_order'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.sort_order&order=ASC' . $url);
+			}else{
+				$data['sort_sort_order'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.sort_order&order=ASC' . $url);
+			}
 
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_name_asc'),
 				'value' => 'pd.name-ASC',
 				'href'  => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=pd.name&order=ASC' . $url)
 			);
+
+			if( $sort == 'p.name'){
+				if($order == 'ASC') $data['sort_sort_name'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.name&order=DESC' . $url);
+				else  $data['sort_sort_name'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.name&order=ASC' . $url);
+			}else{
+				$data['sort_sort_name'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.name&order=ASC' . $url);
+			}
 
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_name_desc'),
@@ -267,6 +287,13 @@ class ControllerProductCategory extends Controller {
 				'value' => 'p.price-ASC',
 				'href'  => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.price&order=ASC' . $url)
 			);
+
+			if( $sort == 'p.price'){
+				if($order == 'ASC') $data['sort_sort_price'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.price&order=DESC' . $url);
+				else  $data['sort_sort_price'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.price&order=ASC' . $url);
+			}else{
+				$data['sort_sort_price'] = $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.price&order=ASC' . $url);
+			}
 
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_price_desc'),
@@ -386,7 +413,36 @@ class ControllerProductCategory extends Controller {
 			
 
 			$this->response->setOutput($this->load->view('product/category', $data));
-		} else {
+		} else if($this->request->get['path'] == 0){
+			// мы в /catalog/
+
+
+			$data['categories'] = array();
+
+			$results = $this->model_catalog_category->getCategories(0);
+
+			foreach ($results as $result) {
+				$filter_data = array(
+					'filter_category_id'  => $result['category_id'],
+					'filter_sub_category' => true
+				);
+
+				$data['categories'][] = array(
+					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
+					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url),
+					'thumb' => ($result['image']) ? $this->model_tool_image->resize($result['image'], 500, 500) : '',
+				);
+			}
+			$data['column_left'] = $this->load->controller('common/column_left');
+			$data['column_right'] = $this->load->controller('common/column_right');
+			$data['content_top'] = $this->load->controller('common/content_top');
+			$data['content_bottom'] = $this->load->controller('common/content_bottom');
+			$data['footer'] = $this->load->controller('common/footer');
+			$data['header'] = $this->load->controller('common/header');
+			$this->response->setOutput($this->load->view('product/category_catalog', $data));
+
+		}		
+		else {
 			$url = '';
 
 			if (isset($this->request->get['path'])) {

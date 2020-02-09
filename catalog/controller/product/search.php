@@ -232,8 +232,10 @@ class ControllerProductSearch extends Controller {
 					'product_id'  => $result['product_id'],
 					'thumb'       => $image,
 					'name'        => $result['name'],
+					'quantity' =>  $result['quantity'],
 					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
 					'price'       => $price,
+					'price_not_formated' => number_format( $this->tax->calculate($result['price'], $result['tax_class_id'], $this->config->get('config_tax')), 0, '.', ' ').' руб.',
 					'special'     => $special,
 					'tax'         => $tax,
 					'minimum'     => $result['minimum'] > 0 ? $result['minimum'] : 1,
@@ -276,11 +278,25 @@ class ControllerProductSearch extends Controller {
 				'href'  => $this->url->link('product/search', 'sort=p.sort_order&order=ASC' . $url)
 			);
 
+			if( $sort == 'p.sort_order'){
+				if($order == 'ASC') $data['sort_sort_order'] = $this->url->link('product/search',  '&sort=p.sort_order&order=DESC' . $url);
+				else  $data['sort_sort_order'] = $this->url->link('product/search',  '&sort=p.sort_order&order=ASC' . $url);
+			}else{
+				$data['sort_sort_order'] = $this->url->link('product/search', '&sort=p.sort_order&order=ASC' . $url);
+			}
+			
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_name_asc'),
 				'value' => 'pd.name-ASC',
 				'href'  => $this->url->link('product/search', 'sort=pd.name&order=ASC' . $url)
 			);
+
+			if( $sort == 'p.name'){
+				if($order == 'ASC') $data['sort_sort_name'] = $this->url->link('product/search',  '&sort=p.name&order=DESC' . $url);
+				else  $data['sort_sort_name'] = $this->url->link('product/search',  '&sort=p.name&order=ASC' . $url);
+			}else{
+				$data['sort_sort_name'] = $this->url->link('product/search',  '&sort=p.name&order=ASC' . $url);
+			}
 
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_name_desc'),
@@ -293,6 +309,13 @@ class ControllerProductSearch extends Controller {
 				'value' => 'p.price-ASC',
 				'href'  => $this->url->link('product/search', 'sort=p.price&order=ASC' . $url)
 			);
+
+			if( $sort == 'p.price'){
+				if($order == 'ASC') $data['sort_sort_price'] = $this->url->link('product/search',  '&sort=p.price&order=DESC' . $url);
+				else  $data['sort_sort_price'] = $this->url->link('product/search', '&sort=p.price&order=ASC' . $url);
+			}else{
+				$data['sort_sort_price'] = $this->url->link('product/search', '&sort=p.price&order=ASC' . $url);
+			}
 
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_price_desc'),
@@ -461,4 +484,99 @@ class ControllerProductSearch extends Controller {
 
 		$this->response->setOutput($this->load->view('product/search', $data));
 	}
+
+	public function aj_search() {
+
+		$this->load->language('product/search');
+
+		$this->load->model('catalog/category');
+
+		$this->load->model('catalog/product');
+
+		$this->load->model('tool/image');
+
+
+		if (isset($this->request->post['search'])) {
+			$search = $this->request->post['search'];
+		} else {
+			$search = '';
+		}
+
+		$data['products'] = $json = array();
+		$json['success'] = false;
+
+		if (isset($this->request->post['search']) || isset($this->request->post['tag'])) {
+			$json['success'] = true;
+			$filter_data = array(
+				'filter_name'         => $search,
+				'filter_tag'          => '',
+				'filter_description'  => '',
+				'filter_category_id'  => 0,
+				'filter_sub_category' => 0,
+				'sort'                => 'name',
+				'order'               => 'ASC',
+				'start'               => 0,
+				'limit'               => 10
+			);
+
+			$url = '';
+
+			if (isset($this->request->get['search'])) {
+				$url .= '&search=' . urlencode(html_entity_decode($this->request->post['search'], ENT_QUOTES, 'UTF-8'));
+			}
+
+			$results = $this->model_catalog_product->getProducts($filter_data);
+	
+			foreach ($results as $result) {
+				if ($result['image']) {
+					$image = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_height'));
+				} else {
+					$image = $this->model_tool_image->resize('placeholder.png', $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_height'));
+				}
+
+				if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
+					$price = $this->currency->format($this->tax->calculate($result['price'], $result['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
+				} else {
+					$price = false;
+				}
+
+				if ((float)$result['special']) {
+					$special = $this->currency->format($this->tax->calculate($result['special'], $result['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
+				} else {
+					$special = false;
+				}
+
+				if ($this->config->get('config_tax')) {
+					$tax = $this->currency->format((float)$result['special'] ? $result['special'] : $result['price'], $this->session->data['currency']);
+				} else {
+					$tax = false;
+				}
+
+				if ($this->config->get('config_review_status')) {
+					$rating = (int)$result['rating'];
+				} else {
+					$rating = false;
+				}
+
+				$data['products'][] = array(
+					'product_id'  => $result['product_id'],
+					'thumb'       => $image,
+					'name'        => $result['name'],
+					'quantity' =>  $result['quantity'],
+					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
+					'price'       => $price,
+					'price_not_formated' => number_format( $this->tax->calculate($result['price'], $result['tax_class_id'], $this->config->get('config_tax')), 0, '.', ' ').' руб.',
+					'special'     => $special,
+					'tax'         => $tax,
+					'minimum'     => $result['minimum'] > 0 ? $result['minimum'] : 1,
+					'rating'      => $result['rating'],
+					'href'        => $this->url->link('product/product', 'product_id=' . $result['product_id'] . $url)
+				);
+			}
+		}
+		$json['result'] = $this->load->view('product/search_aj', $data);
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	//	$this->response->setOutput(, $data));
+	}	
 }

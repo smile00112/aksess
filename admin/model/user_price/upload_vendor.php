@@ -1692,14 +1692,13 @@ public function addCategory($data) {
 			}
 		}
 		
-		if (isset($data['category_seo_url'])) {
-			foreach ($data['category_seo_url'] as $store_id => $language) {
-				foreach ($language as $language_id => $keyword) {
-					if (!empty($keyword)) {
-						$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET store_id = '" . (int)$store_id . "', language_id = '" . (int)$language_id . "', query = 'category_id=" . (int)$category_id . "', keyword = '" . $this->db->escape($keyword) . "'");
-					}
-				}
-			}
+		// SEO URL
+		if (!empty($data['category_seo_url'])) {
+			$store_id = 0;
+			$language_id = 1;
+			$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET store_id = '" . (int)$store_id . "', language_id = '" . (int)$language_id . "', query = 'category_id=" . (int)$category_id . "', keyword = '" . $data['category_seo_url'] . "'");
+	
+			
 		}
 		
 		if (isset($data['product_related'])) {
@@ -1739,7 +1738,7 @@ public function editCategory($category_id, $data) {
 		`column` = '" . (int)$data['column'] . "', 
 		sort_order = '" . (int)$data['sort_order'] . "', 
 		status = '" . (int)$data['status'] . "', 
-		noindex = '" . (int)$data['noindex'] . "', 
+		noindex = '0', 
 		date_modified = NOW() 
 		
 		WHERE category_id = '" . (int)$category_id . "'
@@ -1826,14 +1825,12 @@ public function editCategory($category_id, $data) {
 		// SEO URL
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "seo_url` WHERE query = 'category_id=" . (int)$category_id . "'");
 
-		if (isset($data['category_seo_url'])) {
-			foreach ($data['category_seo_url'] as $store_id => $language) {
-				foreach ($language as $language_id => $keyword) {
-					if (!empty($keyword)) {
-						$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET store_id = '" . (int)$store_id . "', language_id = '" . (int)$language_id . "', query = 'category_id=" . (int)$category_id . "', keyword = '" . $this->db->escape($keyword) . "'");
-					}
-				}
-			}
+		if (!empty($data['category_seo_url'])) {
+			$store_id = 0;
+			$language_id = 1;
+			$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET store_id = '" . (int)$store_id . "', language_id = '" . (int)$language_id . "', query = 'category_id=" . (int)$category_id . "', keyword = '" . $data['category_seo_url'] . "'");
+	
+			
 		}
 		
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_wb WHERE category_id = '" . (int)$category_id . "'");
@@ -2011,21 +2008,22 @@ public function edit_task_info($task_name, $data = array()) {
 
 		if (isset($data['product_category'])) {
 			foreach ($data['product_category'] as $category_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$category_id . "'");
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$category_id . "', main_category = '1'");
 			}
 
 			if (isset($data['category'])){
 			//	$this->db->query("UPDATE " . DB_PREFIX . "product_to_category SET main_category = '1'  WHERE  product_id = '".$product_id."' AND category_id = '".$data['category']."'");
 			}
 		}
+/*
 		if (isset($data['main_category_id']) && $data['main_category_id'] > 0) {
 			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['main_category_id'] . "'");
 			$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$data['main_category_id'] . "', main_category = 1");
 				} elseif (isset($data['product_category'][0])) {
 			$this->db->query("UPDATE " . DB_PREFIX . "product_to_category SET main_category = 1 WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['product_category'][0] . "'");
 		}
-		
-		if (!empty($data['category'])){
+*/
+/*		if (!empty($data['category'])){
 			
 			if(count($data['category'])){
 				
@@ -2035,7 +2033,7 @@ public function edit_task_info($task_name, $data = array()) {
 			
 			}
 		}
-		
+*/
 /*
 		if (isset($data['product_filter'])) {
 			foreach ($data['product_filter'] as $filter_id) {
@@ -2225,7 +2223,7 @@ public function edit_task_info($task_name, $data = array()) {
 				$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
 
 				if (isset($data['product_category'])) {
-					$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
+					//$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
 
 					foreach ($data['product_category'] as $category_id) {
 

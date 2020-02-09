@@ -51,7 +51,11 @@ $(document).ready(function() {
 	});
 
 	/* Search */
-	$('#search input[name=\'search\']').parent().find('button').on('click', function() {
+
+
+	$('#search input[name=\'search\']').parent().find('input[name="submit"]').on('click', function(e) {
+		e.preventDefault()
+		
 		var url = $('base').attr('href') + 'index.php?route=product/search';
 
 		var value = $('header #search input[name=\'search\']').val();
@@ -68,6 +72,7 @@ $(document).ready(function() {
 			$('header #search input[name=\'search\']').parent().find('button').trigger('click');
 		}
 	});
+
 
 	// Menu
 	$('#menu .dropdown-menu').each(function() {
@@ -134,20 +139,30 @@ $(document).ready(function() {
 		$('[data-toggle=\'tooltip\']').tooltip({container: 'body'});
 	});
 });
-
+function view_preloder($show){
+	var $preloader = $('.preloader-contener');
+	if($show === true) $preloader.fadeIn();
+	else $preloader.fadeOut();
+}
 // Cart add remove functions
 var cart = {
 	'add': function(product_id, quantity) {
+		var $q = $( '#product_'+product_id+'_quantity' ).val();
+		if( typeof($q) != 'undefined' ){
+			quantity = $q;
+		}
 		$.ajax({
 			url: 'index.php?route=checkout/cart/add',
 			type: 'post',
 			data: 'product_id=' + product_id + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
 			dataType: 'json',
 			beforeSend: function() {
+				view_preloder(true);
 				$('#cart > button').button('loading');
 			},
 			complete: function() {
 				$('#cart > button').button('reset');
+				view_preloder(false);
 			},
 			success: function(json) {
 				$('.alert-dismissible, .text-danger').remove();
@@ -157,16 +172,25 @@ var cart = {
 				}
 
 				if (json['success']) {
-					$('#content').parent().before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+
+					//$('#content').parent().before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
 
 					// Need to set timeout otherwise it wont update the total
 					setTimeout(function () {
-						$('#cart > button').html('<span id="cart-total"><i class="fa fa-shopping-cart"></i> ' + json['total'] + '</span>');
+						//$('#cart > button').html('<span id="cart-total"><i class="fa fa-shopping-cart"></i> ' + json['total'] + '</span>');
+						if( $('#product_'+product_id+'_addbtn' ).length ){
+
+							 $('#product_'+product_id+'_addbtn' ).prop('disabled', 'disabled');
+							 $('#product_'+product_id+'_addbtn i' ).prop('class', 'fa fa-check');
+
+						}
+
 					}, 100);
 
-					$('html, body').animate({ scrollTop: 0 }, 'slow');
+					//$('html, body').animate({ scrollTop: 0 }, 'slow');
+					//$('#cart > ul').load('index.php?route=common/cart/info ul li');
 
-					$('#cart > ul').load('index.php?route=common/cart/info ul li');
+					$('#cart').load('index.php?route=common/cart/info');
 				}
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
@@ -284,13 +308,18 @@ var wishlist = {
 				}
 
 				if (json['success']) {
-					$('#content').parent().before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+
+					//$('#content').parent().before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+				}
+				if( $('#product_'+product_id+'_addwishlistbtm').length ){
+					 $('[id="product_'+product_id+'_addwishlistbtm"]').prop('class', 'catalog-item-delayed');
 				}
 
-				$('#wishlist-total span').html(json['total']);
-				$('#wishlist-total').attr('title', json['total']);
+				$('#wishlist-total .qnt').html(json['wishlist_count']);
+				//$('#wishlist-total').attr('title', json['total']);
 
-				$('html, body').animate({ scrollTop: 0 }, 'slow');
+
+				//$('html, body').animate({ scrollTop: 0 }, 'slow');
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
 				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);

@@ -142,6 +142,8 @@ class ControllerAccountWishList extends Controller {
 				$json['success'] = sprintf($this->language->get('text_success'), $this->url->link('product/product', 'product_id=' . (int)$this->request->post['product_id']), $product_info['name'], $this->url->link('account/wishlist'));
 
 				$json['total'] = sprintf($this->language->get('text_wishlist'), $this->model_account_wishlist->getTotalWishlist());
+				
+				$json['wishlist_count'] = (isset($this->session->data['wishlist'])) ? count($this->session->data['wishlist']) : 0;
 			} else {
 				if (!isset($this->session->data['wishlist'])) {
 					$this->session->data['wishlist'] = array();
@@ -154,6 +156,8 @@ class ControllerAccountWishList extends Controller {
 				$json['success'] = sprintf($this->language->get('text_login'), $this->url->link('account/login', '', true), $this->url->link('account/register', '', true), $this->url->link('product/product', 'product_id=' . (int)$this->request->post['product_id']), $product_info['name'], $this->url->link('account/wishlist'));
 
 				$json['total'] = sprintf($this->language->get('text_wishlist'), (isset($this->session->data['wishlist']) ? count($this->session->data['wishlist']) : 0));
+
+				$json['wishlist_count'] = (isset($this->session->data['wishlist'])) ? count($this->session->data['wishlist']) : 0;
 			}
 		}
 

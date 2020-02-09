@@ -192,6 +192,7 @@ class ControllerBlogArticle extends Controller {
 			$data['reviews'] = sprintf($this->language->get('text_reviews'), (int)$article_info['reviews']);
 			$data['rating'] = (int)$article_info['rating'];
 			$data['gstatus'] = (int)$article_info['gstatus'];
+			$data['date_added'] = date($this->language->get('date_format_short'), strtotime($article_info['date_added']));
 			$data['description'] = html_entity_decode($article_info['description'], ENT_QUOTES, 'UTF-8');
 			
 			$data['articles'] = array();

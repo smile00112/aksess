@@ -334,282 +334,10 @@ foreach($products as $p){
 	}
 
 
-	public function import_products2() {
-		
-		echo '<meta charset="utf-8">';
-		
-		$this->load->model('user_price/upload_vendor');
-		include_once('simple_html_dom.php');
-		$xml = simplexml_load_file('http://pironet.ru/upload/goods.xml');
-		$all_products = $all_customer_groups = [];
-		$all_products_t = $this->model_user_price_upload_vendor->getSiteProducts();
-		$all_site_categoryes_t = $this->model_user_price_upload_vendor->getSiteCategoryes();
-		$all_site_categoryes = [];
-	//	$this->model_user_price_upload_vendor->disableSiteProducts(); 
-		$products = [];
-
- 
-		foreach ($xml->catalog->categories->category as $c) {
-			$search = array_search((string)$c->name, array_column($all_site_categoryes_t, 'name'));
-			if($search!==false){
-				$all_site_categoryes[(string)$c->id] = $all_site_categoryes_t[$search];
-			}	
-				//echo (int)$c->id.'___'.(string)$c->parent_id.'___'.(string)$c->name.'<br>';
-		}
-
-		foreach ($xml->catalog->goods->item as $i) {
-						
-			$params = $filters =[];
-			$name = (string)$i->name;
-			$active = 'Y';
-			$novinka= '';
-			$recomended= '';
-			$priviewText = (string)$i->description;
-			$datailText =  (string)$i->description;
-			$location =  (string)$i->country;
-			$code =  (string)$i->articul;
-			$Dimensions =  (string)$i->Dimensions;
-			$Weight =  (string)$i->Weight;
-			$artikul =  (string)$i->id;
-			$category =  (string)$i->category;
-			$image = (string)$i->images->image;
-			
-			$path = 'catalog/products/upload/store';
-			if($image){
-				$pathinfo = pathinfo($image);
-				$img_name = $pathinfo['basename'];
-				//print_r($matches);
-				$url = $image;
-				if($img_name){
-					if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/image/'.$path.'/'.$img_name)){
-						
-						try {
-							$f = file_get_contents($url);
-						}
-						catch (Exception $e) {
-							$f = false;
-						}
-						if($f!==FALSE) file_put_contents($_SERVER['DOCUMENT_ROOT'].'/image/'.$path.'/'.$img_name, $f); 
-						else $img_name = '';
-					}	
-					if($img_name)
-						$image = $path.'/'.$img_name;
-					else $image = '';
-				}	
-				
-			}else $image = ''; //$image = 'catalog/products/'.$vendor.'/noimage.png';
-			
 
 
 
-			$video = (string)$i->videos->video;
-			if( !empty($video) )
-				$params[]= array('attrbute_id'=> 16, 'name' => 'Видео',  'value' => $video);
-			if( !empty($video) )
-				$params[]= array('attrbute_id'=> 21, 'name' => 'Вес',  'value' => $Weight);
-			if( !empty($video) )
-				$params[]= array('attrbute_id'=> 26, 'name' => 'Размер',  'value' => $Dimensions);
-			
-			foreach ($i->properties->property as  $p){
-				
-				switch($p->name) { 
-					case 'Новинка':
-						$novinka = $p->value;
-					break;
-					case 'Рекомендовано':
-						$recomended = $p->value;
-					break;
-					case 'Время работы':
-						$params[14]= array('attrbute_id'=> 14, 'name' => 'Время работы',  'value' => (string)$p->value);
-					break;
-					case 'Высота подъема':
-						$params[15]= array('attrbute_id'=> 15, 'name' => 'Высота подъема',  'value' => (string)$p->value);
-					break;					
-					case 'Безопасный радиус':
-						$params[20]= array('attrbute_id'=> 20, 'name' => 'Безопасный радиус',  'value' => (string)$p->value);
-					break;						
-					case 'Торговая марка':
-						$params[24]= array('attrbute_id'=> 24, 'name' => 'Торговая марка',  'value' => (string)$p->value);
-					break;						
-					case 'Назначение':
-						$params[25]= array('attrbute_id'=> 25, 'name' => 'Назначение',  'value' => (string)$p->value);
-					break;						
-					case 'Количество залпов':
-						$params[12]= array('attrbute_id'=> 12, 'name' => 'Количество залпов',  'value' => (string)$p->value);
-					break;		
-					case 'Фасовка':
-						$params[23]= array('attrbute_id'=> 23, 'name' => 'Фасовка',  'value' => (string)$p->value);
-					break;	
-					case 'Калибр':
-						/*if(isset($params[13])){
-							$params[13]['value'].=','.(string)$p->value;
-						}else
-							*/
-						$params[13]= array('attrbute_id'=> 13, 'name' => 'Калибр',  'value' => (string)$p->value);
-					break;	
-					case 'Эффект': 
-						if(isset($params[18])){
-							$params[18]['value'].=','.(string)$p->value;
-						}else
-						$params[18]= array('attrbute_id'=> 18, 'name' => 'Эффект',  'value' => (string)$p->value);
-					break;
-					
-			
-				}
-				
-			}
-			$icon = '';
-			if($novinka == 'true' && $recomended=='true'){
-				$icon = 'a:2:{i:1;s:1:"1";i:2;s:1:"2";}';
-			}else if($novinka == 'true'){
-				$icon = 'a:1:{i:1;s:1:"1";}';
-			}else if($recomended == 'true'){
-				$icon = 'a:1:{i:2;s:1:"2";}';
-			}
 
-
-		if( !isset($products[$artikul]) ){ 
-			$products[$artikul] = [
-				'icon' => $icon,
-				'artikul' => $artikul,
-				'novinka' => $novinka,
-				'recomended' => $recomended,
-				'active' => $active,
-				'name' => $name,
-				'category' => $category,
-				'image' => $image,
-				//'image_dop' => $image_dop,
-				'priviewText' => $priviewText,
-				'detailText' => $datailText,
-				'code' => $code,
-				//'category' => [],
-				'params' => $params,
-				'filters' => $filters,
-			];
-				
-		}	
-
-	}
-
-				foreach($products as $p){
-					$search_product = array_search($p['artikul'], array_column($all_products_t, 'sku'));
-					if($search_product!==false ){
-
-//echo $p['artikul'].'__edit__'.$p['active'].'__'.$p['novinka'].'__'.$p['recomended'].'__'.$p['icon'].'__<br>';
-
-
-						$product_id = $all_products_t[$search_product]['product_id'];
-						$active = ($p['active'] == 'Y') ? 1 : 0;
-					 	$this->model_user_price_upload_vendor->editProduct_Import($product_id, array(
-							'model' => $p['name'],
-							'sku' => $p['artikul'], 
-							'icon' => $p['icon'], 
-							'upc' => '',
-							'ean' =>'',
-							'jan' => '',
-							//'category' => $p['category'][0],
-							'mpn' => '',
-							'isbn' => '',
-							'location' => '',
-							'quantity' =>  66,
-							'minimum' => 1,
-							'subtract' => 1,
-							'stock_status_id' => 7,  //Присутствие на складе
-							'date_available' => date("Y.m.d"),
-							'manufacturer_id' => 0,
-							'shipping' => 1,
-							'price' => 0,
-							'product_special' => 0,
-							'points' => 0,
-							'weight' => 0,
-							'weight_class_id' => 1,
-							'length' => 0,
-							'width' => 0,
-							'height' => 0,
-							'length_class_id' => 1,
-							'status' => $active,
-							'product_store' => array(0),
-							'tax_class_id' => 9,
-							'sort_order' => 0,
-							'image' => $p['image'],
-							//'images' => array('catalog/products'.$p['image_dop']),
-							//'product_category' => $p['category'],
-							'product_description' => array('2'=>array(
-															'name' => $p['name'],
-															'description' => $p['detailText'],
-															'keyword' => '',
-															'tag' => '',
-															'meta_title' => $p['name'],
-															'meta_description' => $p['priviewText'],
-															'meta_keyword' => '',
-														)),
-
-
-						)); 
-						$this->model_user_price_upload_vendor->editProduct_Attribute($product_id, $p['params']);
-
-					}else{
-//echo $p['artikul'].'__Add<br>';
-						if(!empty($all_site_categoryes[$p['category']])) $cat = $all_site_categoryes[$p['category']];
-						else $cat = [];
-						//print_r($all_site_categoryes[$p['category']]);
-						$active = ($p['active'] == 'Y') ? 1 : 0;
-						//echo $active.'_add_'.$p['active'].'<br>';
-
-						 $this->model_user_price_upload_vendor->addProduct_Import(array(
-													'model' => $p['name'],
-													'sku' => $p['artikul'],
-													'category' => $cat,
-													'icon' => $p['icon'], 
-													'upc' => '',
-													'ean' =>'',
-													'jan' => '',
-													'keyword' => $this->getTranslit($p['name']),
-													'mpn' => '',
-													'isbn' => '',
-													'location' => '',
-													'quantity' =>  66,
-													'minimum' => 1,
-													'subtract' => 1,
-													'stock_status_id' => 7,  //Присутствие на складе
-													'date_available' => date("Y.m.d"),
-													'manufacturer_id' => 0,
-													'shipping' => 1,
-													'price' => 0,
-													'product_special' => 0,
-													'points' => 0,
-													'weight' => 0,
-													'weight_class_id' => 1,
-													'length' => 0,
-													'width' => 0,
-													'height' => 0,
-													'length_class_id' => 1,
-													'status' => $active,
-													'product_store' => array(0),
-													'tax_class_id' => 9,
-													'sort_order' => 0,
-													'image' => $p['image'],
-													//'images' => array('catalog/products'.$p['image_dop']),
-													//'product_category' => $p['category'],
-													'product_description' => array('2'=>array(
-																					'name' => $p['name'],
-																					'description' => $p['detailText'],
-																					'keyword' => '',
-																					'tag' => '',
-																					'meta_title' => $p['name'],
-																					'meta_description' => $p['priviewText'],
-																					'meta_keyword' => '',
-																				)),
-
-
-												));  
-
-					}
-				}
-	echo '<br>END Products<br>';			
-			//Информируем	
-	//		mail("gorely.aleksei@yandex.ru", "cron import_products", "import_products\n");
-	}
 
 	public function import_products() {
 
@@ -621,31 +349,39 @@ foreach($products as $p){
 
 		
 		include_once('simple_html_dom.php');
-		$xml = simplexml_load_file('http://alexgo3j.bget.ru/upload/goods.xml');
+		$xml = simplexml_load_file('http://atvdoc/upload/goods.xml');
 		$importFile = $_SERVER['DOCUMENT_ROOT'].'/upload/goods.xml';
 		$fileDate = strtotime(date("YmdHis",filemtime($importFile)));
 		
 		$all_products = $all_customer_groups = [];
 		$all_products_t = $this->model_user_price_upload_vendor->getSiteProducts();
 		$all_site_categoryes_t = $this->model_user_price_upload_vendor->getSiteCategoryes();
+		$all_site_manufacturers = $this->model_user_price_upload_vendor->getManufacturers();
 		$all_site_categoryes = [];
+
+		
 	//	$this->model_user_price_upload_vendor->disableSiteProducts(); 
 		$products = [];
- /*
-  echo '<pre>';
-print_r($all_site_categoryes_t);
- //print_r($xml);
- echo '</pre>';
- */
+/*
+echo '<pre>';
+print_r($all_site_manufacturers_t);
+ exit;
+echo '</pre>';
+
+*/
 		$config_language_id = (int)$this->config->get('config_language_id');
 		foreach ($xml->categories->category as $c) {
 			if(!empty($c->images->image)){
-				$category_image = 'catalog/img/'.(string)$c->images->image;
+				if(file_exists($_SERVER['DOCUMENT_ROOT'].'/image/catalog/products/'.(string)$c->images->image))
+					$category_image = 'catalog/products/'.(string)$c->images->image;
+				else $category_image = 'catalog/noimage.png';
+				//$category_image = 'catalog/noimage.png';
 			}else{
 				$category_image = 'catalog/noimage.png';
 			}
 			$category_name = (string)$c->name;
 			$category_origin_id = (string)$c->id;
+			$category_prefix = (string)$c->prefix;
 			//echo $c->name;
 			//Ищем категорию на сайте по id
 			$search = array_search($category_origin_id, array_column($all_site_categoryes_t, 'origin_id'));
@@ -655,7 +391,7 @@ print_r($all_site_categoryes_t);
 				//Проверяем есть ли изменения в инфе по категориям (если есть, то обновляем)
 				if(($category_name != $all_site_categoryes_t[$search]['name']) || ((string)$c->images->image != $all_site_categoryes_t[$search]['image'])){
 					
-					echo $category_origin_id.'  NeedModified<br>';
+//echo $category_origin_id.'  NeedModified<br>';
 					
 					$parent_id = $all_site_categoryes_t[$search]['parent_id'];
 					$new_cat_id = $this->model_user_price_upload_vendor->editCategory(
@@ -663,11 +399,12 @@ print_r($all_site_categoryes_t);
 						array( 
 							//'category_id' => $all_site_categoryes_t[$search]['category_id'],
 							'parent_id' => $parent_id,
+							'category_seo_url'  => $category_prefix.'_'.$category_origin_id,
 							'top' => 0,
 							'sort_order' => 0,
 							'column' => 0,
 							'sort' => 0,
-							'image' => $image,
+							'image' => $category_image,
 							'status' => 1,
 							'category_store' => array(0),
 							'category_description' => array($config_language_id => array('name'=>$category_name,
@@ -703,7 +440,9 @@ print_r($all_site_categoryes_t);
 					array( 
 					'parent_id' => $parent_id,
 					'origin_id' => $category_origin_id,
+					'category_seo_url'  => $category_prefix.'_'.$category_origin_id,
 					'top' => 0,
+					'img' => (string)$c->images->image,
 					'sort_order' => 0,
 					'column' => 0,
 					'sort' => 0,
@@ -720,7 +459,7 @@ print_r($all_site_categoryes_t);
 					),
 					//'category_seo_url' => array(), 
 					));
-				echo 	'<br>Category '.$new_cat_id.' Added!!!!<br>'; 
+//echo 	'<br>Category '.$new_cat_id.' Added!!!!<br>'; 
 				$all_site_categoryes[$category_origin_id] = array(
 					'name'=> $category_name,
 					'parent_id' => $parent_id,
@@ -729,14 +468,16 @@ print_r($all_site_categoryes_t);
 			}
 				//echo (int)$c->id.'___'.(string)$c->parent_id.'___'.(string)$c->name.'<br>';
 		}
+
+
 /* 
  echo '<pre>';
 	print_r($all_site_categoryes);
  echo '</pre>';
  */
-
+$ii =0;
 		foreach ($xml->goods->item as $i) {
-						
+			$ii++;			
 			$params = $filters =[];
 			$name = (string)$i->name;
 			
@@ -750,22 +491,30 @@ print_r($all_site_categoryes_t);
 			//$Weight =  (string)$i->Weight;
 			//$artikul =  (string)$i->id;
 			$category =  (string)$i->category;
+			$price =  (string)$i->price;
+			$quantity =  (string)$i->catalog_quantity;
 			$image = (string)$i->images->image;
+			$n_group = (string)$i->n_group;
+			$manufacturer = (string)$i->manufacturer;
 			if($image) $image = 'catalog/products/'.$image;
 			else  $image = 'catalog/noimage.png';
-			$quantity = (int)$i->catalog_quantity; 
 			$active = $quantity ? 'Y' : 'N';
 			$p = [
 				//'icon' => $icon,
 				'artikul' => $artikul,
+				'model' => $artikul,
 				'm_code' => $m_code,
+				'mpn' => $n_group,
 				'novinka' => $novinka,
 				'xit' => $xit,
+				'manufacturer' => $manufacturer,
 				'active' => $active,
-				'name' => $name,
+				'name' => trim($name),
 				'category' => $category,
 				'image' => $image,
 				'quantity' => $quantity,
+				'price' => $price,
+
 				//'image_dop' => $image_dop,
 				'priviewText' => $priviewText,
 				'detailText' => $datailText,
@@ -775,46 +524,38 @@ print_r($all_site_categoryes_t);
 				//'filters' => $filters,
 			];
 
+			if(!$p['name']) continue;
 
-/*
+				if(!empty($all_site_categoryes[$p['category']])) 
+					$cat = [$all_site_categoryes[$p['category']]['category_id']];
+				else $cat = [0];
+				$search_manufacturer = array_search($p['manufacturer'], array_column($all_site_manufacturers, '1c_id'));
+				$manufacturer_site_id = ($search_manufacturer!==false ) ? $all_site_manufacturers[$search_manufacturer]['manufacturer_id'] : 0;
 
-			<goods_type>875b2bb9-7231-11e5-b895-902b3434a4df</goods_type>
-			<id>69394015-e01c-11e3-be4d-902b3434a4df</id>
-			<name>Пошипник игольчатый c внутренней обоймой NK152716 19x27x16мм</name>
-			<articul>9608-NK152716</articul>
-			<category>875b2bb9-7231-11e5-b895-902b3434a4df</category>
-			<m_code>LU049927</m_code>
-			<n_group>28</n_group>
-			<catalog_quantity>1</catalog_quantity>
-			<total_quantity>2</total_quantity>
-			<images>
-				<image>t00000018719.jpg</image>
-			</images>
-			
-			
-*/				
-				if(!empty($all_site_categoryes[$p['category']])) $cat = $all_site_categoryes[$p['category']];
-				else $cat = [];
 				$search_product = array_search($p['artikul'], array_column($all_products_t, 'sku'));
+				
 					if($search_product!==false ){
 
 //echo $p['artikul'].'__edit__'.$p['active'].'__'.$p['novinka'].'__'.$p['recomended'].'__'.$p['icon'].'__<br>';
 
-
+						echo $ii.'__m='.$manufacturer_site_id.'____'.$p['name'].'_____';
+						echo '_cat__'.$p['category'].'/'.$cat[0].'<br>';
 						$product_id = $all_products_t[$search_product]['product_id'];
 						$active = ($p['active'] == 'Y') ? 1 : 0;
 					 	$this->model_user_price_upload_vendor->editProduct_Import($product_id, array(
-							'model' => $p['name'],
-							'category' => $cat,
+							'model' => $p['model'],
+							'product_category' => $cat,
 							'sku' => $p['artikul'], 
 							//'icon' => $p['icon'], 
 							'upc' => $p['m_code'], 
+							'price' => $p['price'], 
+							'manufacturer_id' => $manufacturer_site_id, 
 							'novinka' => $novinka,
 							'xit' => $xit,
+							'mpn' => $n_group,
 							'ean' =>'',
 							'jan' => '',
 							//'category' => $p['category'][0],
-							'mpn' => '',
 							'isbn' => '',
 							'location' => '',
 							'quantity' =>  $p['quantity'],
@@ -822,9 +563,7 @@ print_r($all_site_categoryes_t);
 							'subtract' => 1,
 							'stock_status_id' => $p['quantity'] ? 7 : 5,  //Присутствие на складе  7 - есть на складе, 5 нет в наличии, 8-предзаказ
 							'date_available' => date("Y.m.d"),
-							'manufacturer_id' => 0,
 							'shipping' => 1,
-							'price' => 0,
 							'product_special' => 0,
 							'points' => 0,
 							'weight' => 0,
@@ -836,11 +575,11 @@ print_r($all_site_categoryes_t);
 							'status' => $active,
 							'product_store' => array(0),
 							'tax_class_id' => 9,
-							'sort_order' => 0,
+							'sort_order' => $n_group,
 							'image' => $p['image'],
 							//'images' => array('catalog/products'.$p['image_dop']),
 							//'product_category' => $p['category'],
-							'product_description' => array('2'=>array(
+							'product_description' => array('1'=>array(
 															'name' => $p['name'],
 															'description' => $p['detailText'],
 															'keyword' => '',
@@ -860,19 +599,22 @@ print_r($all_site_categoryes_t);
 						//print_r($all_site_categoryes[$p['category']]);
 						$active = ($p['active'] == 'Y') ? 1 : 0;
 						//echo $active.'_add_'.$p['active'].'<br>';
-
+	// echo 1111;
 						 $this->model_user_price_upload_vendor->addProduct_Import(array(
-													'model' => $p['name'],
+						
+													'model' => $p['artikul'],
 													'sku' => $p['artikul'],
 													'category' => $cat,
+													'product_category' => $cat,
 													//'icon' => $p['icon'], 
 													'upc' => $p['m_code'], 
 													'novinka' => $novinka,
+													'manufacturer_id' => $manufacturer_site_id, 
 													'xit' => $xit,
 													'ean' =>'',
 													'jan' => '',
 													'keyword' => $this->getTranslit($p['name']),
-													'mpn' => '',
+													'mpn' => $n_group,
 													'isbn' => '',
 													'location' => '',
 													'quantity' =>  $p['quantity'],
@@ -880,7 +622,6 @@ print_r($all_site_categoryes_t);
 													'subtract' => 1,
 													'stock_status_id' => $p['quantity'] ? 7 : 5,  //Присутствие на складе  7 - есть на складе, 5 нет в наличии, 8-предзаказ
 													'date_available' => date("Y.m.d"),
-													'manufacturer_id' => 0,
 													'shipping' => 1,
 													'price' => 0,
 													'product_special' => 0,
@@ -894,7 +635,7 @@ print_r($all_site_categoryes_t);
 													'status' => $active,
 													'product_store' => array(0),
 													'tax_class_id' => 9,
-													'sort_order' => 0,
+													'sort_order' => $n_group,
 													'image' => $p['image'],
 													//'images' => array('catalog/products'.$p['image_dop']),
 													//'product_category' => $p['category'],
@@ -915,8 +656,8 @@ print_r($all_site_categoryes_t);
 					}
 // print_r($p);
 // exit;
-			
-	}
+if($ii > 5500) exit;
+}
 
 
 //Информируем	

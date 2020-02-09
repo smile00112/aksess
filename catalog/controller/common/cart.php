@@ -39,13 +39,17 @@ class ControllerCommonCart extends Controller {
 			}
 
 			$sort_order = array();
-
+			$t_v = 0;
 			foreach ($totals as $key => $value) {
 				$sort_order[$key] = $value['sort_order'];
+
+				$t_v+= $value['value'];
 			}
 
 			array_multisort($sort_order, SORT_ASC, $totals);
 		}
+		$data['total_value'] = $t_v;
+		$data['cart_product_count'] = $this->cart->countProducts();
 
 		$data['text_items'] = sprintf($this->language->get('text_items'), $this->cart->countProducts() + (isset($this->session->data['vouchers']) ? count($this->session->data['vouchers']) : 0), $this->currency->format($total, $this->session->data['currency']));
 

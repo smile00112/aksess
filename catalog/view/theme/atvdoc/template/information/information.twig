@@ -1,4 +1,71 @@
 {{ header }}
+
+<div class="content-wrapper">
+  <div class="center inner">
+    <div class="content">
+      <div class="left-column">
+
+        {{ column_left }}
+
+        {{ column_right }}
+
+
+      </div>
+
+
+      <div class="workarea {{ class }}" id="content">
+        <div class="body_text">
+
+          <div class="breadcrumb-share">
+              {% for breadcrumb in breadcrumbs %}
+
+                 <div class="breadcrumb__item"  itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemprop="child">
+                    <span class="breadcrumb__arrow"></span>
+                    {% if breadcrumb.href %} <a class="breadcrumb__link" href="{{ breadcrumb.href }}" title="{{ breadcrumb.text1 }}" itemprop="url">{% endif %}
+                      <span class="breadcrumb__title" itemprop="title">
+                        {{ breadcrumb.text }}
+                      </span>
+                      {% if breadcrumb.href %}</a>{% endif %}
+                  </div>
+              {% endfor %}
+              
+              <!--
+              <div class="breadcrumb__item"><span class="breadcrumb__arrow"></span><span
+                  class="breadcrumb__title">{{ breadcrumb.text }}</span></div>
+
+              -->
+            </div>
+          </div>
+
+        <h1 id="pagetitle">{{ heading_title }}</h1>
+        {{ content_top }}
+
+ 
+  
+        {{ description }}{{ content_bottom }}
+
+
+
+        {{ content_bottom }}
+      
+   
+  </div>
+  </div>
+  </div>    
+</div>  
+
+<div id="fastview_modal"></div>
+
+  {{ footer }}
+
+
+
+
+
+{#}
+
+
+
 <div id="information-information" class="container">
   <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
@@ -18,4 +85,6 @@
       {{ description }}{{ content_bottom }}</div>
     {{ column_right }}</div>
 </div>
-{{ footer }}
+
+
+#}

@@ -1,4 +1,705 @@
 {{ header }}
+
+<div class="content-wrapper">
+  <div class="center inner">
+    <div class="content">
+      <div class="left-column">
+
+        {{ column_left }}
+
+        {{ column_right }}
+
+
+      </div>
+
+
+      <div class="workarea {{ class }}" id="content">
+        <div class="body_text">
+
+          <div class="breadcrumb-share">
+            <div id="navigation" class="breadcrumb">
+     
+              {% for breadcrumb in breadcrumbs %}
+
+                 <div class="breadcrumb__item"  itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemprop="child">
+                    <span class="breadcrumb__arrow"></span>
+                    {% if breadcrumb.href %} <a class="breadcrumb__link" href="{{ breadcrumb.href }}" title=" " itemprop="url">{% endif %}
+                      <span class="breadcrumb__title" itemprop="title">
+                        {{ breadcrumb.text }}
+                      </span>
+                      {% if breadcrumb.href %}</a>{% endif %}
+                  </div>
+              {% endfor %}
+              
+              <!--
+              <div class="breadcrumb__item"><span class="breadcrumb__arrow"></span><span
+                  class="breadcrumb__title">{{ breadcrumb.text }}</span></div>
+
+              -->
+            </div>
+          </div>
+
+          <h1 id="pagetitle">Моя корзина</h1>
+          <form method="post" action="/personal/cart/" name="basket_form" id="basket_form">
+
+            <div class="cart-items" id="id-cart-list">
+              <div class="sort-clear">
+                <div class="sort">
+                  <div class="sorttext">Показывать:</div>
+                  <a href="javascript:void(0)" class="sortbutton current"><span class="def">Товары в корзине</span><span
+                      class="mob">В корзине</span></a>
+
+                </div>
+                <div class="clear">
+                  <a class="btn_buy apuo clear_cart" href="/personal/cart/?BasketClear=Y" title="Очистить корзину"><span
+                      class="clear_cont"><i class="fa fa-times"></i><span>Очистить корзину</span></span></a>
+                </div>
+              </div>
+              <div id="min_price_message" class="alertMsg info disN">
+                <i class="fa fa-info"></i>
+                <span class="text">Минимальная сумма заказа руб.</span>
+              </div>
+
+              <div class="equipment" id="cart_equipment">
+                <div class="thead">
+                  <div class="cart-item-image">Фото</div>
+                  <div class="cart-item-name">Название</div>
+                  <div class="cart-item-price">Цена</div>
+                  <div class="cart-item-quantity">Кол-во</div>
+                  <div class="cart-item-summa">Сумма</div>
+                  <div class="cart-item-actions">Действия</div>
+                </div>
+                <div class="tbody">
+
+                  {% for product in products %}
+                        <div class="tr" id="18023">
+                          <div class="tr_into">
+                            <div class="cart-item-image">
+                              {% if product.thumb %} <a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-thumbnail" /></a> {% endif %}
+                            </div>
+                            <div class="cart-item-name">
+                              <a href="{{ product.href }}">{{ product.name }}</a>
+                            </div>
+
+                            <div class="cart-item-price">
+                              <div class="old-price" id="">
+                              </div>
+                              <div class="price" id="">
+                                {{ product.price }} </div>
+                              <div class="unit">
+                                за <span id="">шт</span>
+                              </div>
+                            </div>
+
+                            <div class="cart-item-quantity">
+                              <div style="float:right;" class="buy_more">
+                                <a href="javascript:void(0)" class="minus" onclick="cart.setQuantity({{ product.cart_id }}, 1, 'down', true);"><span>-</span></a>
+                                                                
+                                <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity }}" size="1" class="carrttt-input quantity form-control" />
+                               
+                                <a href="javascript:void(0)" class="plus" onclick="cart.setQuantity({{ product.cart_id }}, 1, 'up', true);"><span>+</span></a>
+                              </div>
+                            </div>
+
+                            <div class="cart-item-summa" id="" data-itemsum="" data-separator=" "
+                              data-decimal="0" data-dec-point="." data-hide-zero="Y">
+                              <span class="sum">
+                                <span id="itemSumVal_18023">{{ product.total }}</span>
+                               {#<span class="curr"> руб.</span>#}
+                              </span>
+                            </div>
+                            <div class="cart-item-actions">
+                              <div class="delay">
+                                <a class="setaside" href="/personal/cart/?action=delay&amp;id=18023" title="Отложить"><i
+                                    class="fa fa-heart-o"></i></a>
+                              </div>
+                              <div class="delete">
+                                <a class="deleteitem" href="/personal/cart/?action=delete&amp;id=18023"
+                                  onclick="//return DeleteFromCart(this);" title="Удалить"><i class="fa fa-trash-o"></i></a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                   {% endfor %}
+
+
+{#}
+                  <tr>
+                    <td class="text-center">{% if product.thumb %} <a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-thumbnail" /></a> {% endif %}</td>
+                    <td class="text-left"><a href="{{ product.href }}">{{ product.name }}</a> {% if not product.stock %} <span class="text-danger">***</span> {% endif %}
+                      {% if product.option %}
+                      {% for option in product.option %} <br />
+                      <small>{{ option.name }}: {{ option.value }}</small> {% endfor %}
+                      {% endif %}
+                      {% if product.reward %} <br />
+                      <small>{{ product.reward }}</small> {% endif %}
+                      {% if product.recurring %} <br />
+                      <span class="label label-info">{{ text_recurring_item }}</span> <small>{{ product.recurring }}</small> {% endif %}</td>
+                    <td class="text-left">{{ product.model }}</td>
+                    <td class="text-left"><div class="input-group btn-block" style="max-width: 200px;">
+                        <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity }}" size="1" class="form-control" />
+                        <span class="input-group-btn">
+                        <button type="submit" data-toggle="tooltip" title="{{ button_update }}" class="btn btn-primary"><i class="fa fa-refresh"></i></button>
+                        <button type="button" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger" onclick="cart.remove('{{ product.cart_id }}');"><i class="fa fa-times-circle"></i></button>
+                        </span></div></td>
+                    <td class="text-right">{{ product.price }}</td>
+                    <td class="text-right">{{ product.total }}</td>
+                  </tr>
+#}
+
+                
+
+               
+                  
+
+
+
+
+                  {% for total in totals %}
+           
+
+                  <div class="myorders_itog">
+                    <div class="cart-itogo">{{ total.title }}:</div>
+                    <div class="cart-allsum" id="cart-allsum" data-allsum="13400" data-separator=" " data-decimal="0"
+                      data-dec-point="." data-hide-zero="Y">
+                      <span class="allsum">
+                        <span id="allSumVal">{{ total.text }}</span>
+                        {#<span class="curr"> руб.</span>#}
+                      </span>
+                    </div>
+                  </div>
+                  {% endfor %}
+
+                </div>
+              </div>
+
+              <div class="w100p">
+
+                <div class="cart-coupon" id="cart-coupon">
+                  <div class="bx_ordercart_coupon">
+                    <input type="text" id="coupon" name="COUPON" value="" placeholder="Введите купон" onchange="enterCoupon();">
+                    <button type="button" name="ENTER_COUPON" value="" onclick="enterCoupon();"><i
+                        class="fa fa-chevron-right"></i></button>
+                    <div class="clr"></div>
+                  </div>
+                </div>
+
+                <input type="hidden" id="min_price_vlue" value="">
+                <input type="hidden" id="total_price_basket" value="13400">
+
+                <div id="btn_buy_basket" class="cart-buttons">
+                  <button type="button" id="boc_anch_cart" class="btn_buy boc_anch_cart" name="boc_anch_cart"
+                    value="Оформить в 1 клик">Оформить в 1 клик</button>
+                  <button type="button" id="btn_basket_order" name="BasketOrder" class="btn_buy popdef bt3" value="Оформить"
+                    onclick="location.href='http://atvdoc/index.php?route=checkout/checkout'">Оформить</button>
+                </div>
+
+                <div class="clr"></div>
+              </div>
+            </div>
+
+            <div class="cart-items" id="id-shelve-list" style="display:none;">
+              <div class="sort-clear">
+                <div class="sort">
+                  <div class="sorttext">Показывать:</div>
+                  <a href="javascript:void(0)" onclick="showBasketItems(1);" class="sortbutton"><span class="def">Товары в
+                      корзине</span><span class="mob">В корзине</span> (2)</a>
+                  <a href="javascript:void(0)" class="sortbutton current"><span class="def">Отложенные товары</span><span
+                      class="mob">Отложенные</span></a>
+                </div>
+              </div>
+
+              <span class="alertMsg info">
+                <i class="fa fa-info" aria-hidden="true"></i>
+                <span class="text">В вашей корзине ещё нет отложенных товаров.</span>
+              </span>
+            </div> <input type="hidden" name="BasketOrder" value="BasketOrder">
+          </form>
+
+
+   
+              
+
+  <!--  Персональные рекомендации  -->
+
+        <div class="bigdata-items" data-entity="parent-container">
+          <div class="h3" data-entity="header" data-showed="true">Персональные рекомендации</div>
+          <div class="catalog-item-cards" data-entity="container-p17i1f">
+            <div class="catalog-item-card item-pm" id="bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e" data-entity="item"
+              style="height: 499px;">
+        
+              <div class="catalog-item-info">
+                <button type="button" id="bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e_quick_view" class="quick_view"
+                  data-action="view" name="quick_view">
+                  <i class="fa fa-eye"></i>
+                  <span> Быстрый просмотр</span>
+                </button>
+                <div class="item-image-cont">
+                  <div class="item-image">
+                    <a href="/index.php?route=product/product&path=20737_20740_22832_22862_22871&product_id=64">
+                      <img class="item_img" src="/image/cache/catalog/products/t00000029351-228x228.JPG"
+                        width="178" height="178" alt="Кирпич для тротуарной плитки" title="Кирпич для тротуарной плитки">
+        
+                      <span class="sticker">
+                        <span class="new">New</span> </span>
+                    </a>
+                  </div>
+                </div>
+                <div class="item-all-title">
+                  <a class="item-title" href="/index.php?route=product/product&path=20737_20740_22832_22862_22871&product_id=64"
+                    title="Кирпич для тротуарной плитки">
+                    Кирпич для тротуарной плитки </a>
+                </div>
+                <div class="article_rating">
+                  <div class="article">
+                    Артикул: - </div>
+                  <div class="rating">
+                    <div class="star voted" title="1"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="2"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="3"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="4"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="5"><i class="fa fa-star"></i></div>
+                  </div>
+                  <div class="clr"></div>
+                </div>
+                <div class="item-desc">
+                  Вибропрессованый кирпич для укладки тротуарной плитки изготовлен на автоматическом оборудовании из цемента
+                  марки М500. Срок службы 65 лет. </div>
+                <div class="item-price-cont">
+                  <div class="item-price">
+                    <span class="catalog-item-price">
+                      <span class="from">От</span> 220 <span class="unit">
+                        руб. <span>за 1 м2</span>
+                      </span>
+                      <span class="catalog-item-price-ranges-wrap">
+                        <a id=""
+                          class="catalog-item-price-ranges" href="javascript:void(0);"><i
+                            class="fa fa-question-circle-o"></i></a>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div class="catalog-price-ranges">
+                  <div class="catalog-detail-price-ranges__row">
+                    <div class="catalog-detail-price-ranges__sort">
+                      Розница </div>
+                    <div class="catalog-detail-price-ranges__dots"></div>
+                    <span class="from">От</span>
+        
+                    <div class="catalog-detail-price-ranges__price">260</div>
+                    <span class="unit"> руб.</span>
+                    <span class="catalog-item-price-ranges-wrap">
+                      <a id="" data-key="1"
+                        class="catalog-item-price-ranges" href="javascript:void(0);">
+                        <i class="fa fa-question-circle-o"></i>
+                      </a>
+                    </span>
+                  </div>
+                  <div class="catalog-detail-price-ranges__row">
+                    <div class="catalog-detail-price-ranges__sort">
+                      Опт </div>
+                    <div class="catalog-detail-price-ranges__dots"></div>
+                    <span class="from">От</span>
+        
+                    <div class="catalog-detail-price-ranges__price">220</div>
+                    <span class="unit"> руб.</span>
+                    <span class="catalog-item-price-ranges-wrap">
+                      <a id="" data-key="2"
+                        class="catalog-item-price-ranges" href="javascript:void(0);">
+                        <i class="fa fa-question-circle-o"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+        
+        
+                <div class="buy_more">
+                  <div class="available">
+        
+        
+                    <div class="avl">
+                      <i class="fa fa-check-circle"></i>
+                      <span>
+                        В наличии много </span>
+                    </div>
+        
+                  </div>
+        
+                  <div class="add2basket_block">
+                    <form action="javascript:void(0)" class="add2basket_form">
+                      <a href="javascript:void(0)" class="minus"
+                        id=""><span>-</span></a>
+        
+                      <input type="text" id="quantity_bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e" name="quantity"
+                        class="quantity" value="1">
+                      <a href="javascript:void(0)" class="plus"
+                        id=""><span>+</span></a>
+                      <button type="button" id="bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e_props_btn" class="btn_buy"
+                        name="add2basket"><i class="fa fa-shopping-cart"></i><span>В корзину</span></button>
+                    </form>
+                  </div>
+                  <div class="clr"></div>
+                  <div class="compare">
+                    <a href="javascript:void(0)" class="catalog-item-compare"
+                      id="catalog_add2compare_link_bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e"
+                      onclick="return addToCompare('/catalog/compare/?action=ADD_TO_COMPARE_LIST&amp;id=216', 'catalog_add2compare_link_bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e', '/');"
+                      title="Добавить к сравнению" rel="nofollow"><i class="fa fa-bar-chart"></i><i class="fa fa-check"></i></a>
+                  </div>
+                  <div class="delay">
+                    <a href="javascript:void(0)"
+                      id="catalog-item-delay-min-bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e-224"
+                      class="catalog-item-delay"
+                      onclick="return addToDelay('224', 'quantity_bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e', 'YTozOntpOjA7YTozOntzOjQ6Ik5BTUUiO3M6NzoiwPDy6Orz6yI7czo0OiJDT0RFIjtzOjk6IkFSVE5VTUJFUiI7czo1OiJWQUxVRSI7czo3OiJBMzUwOTZBIjt9aToxO2E6Mzp7czo0OiJOQU1FIjtzOjQ6Itbi5fIiO3M6NDoiQ09ERSI7czo1OiJDT0xPUiI7czo1OiJWQUxVRSI7czo1OiLR5fD76SI7fWk6MjthOjM6e3M6NDoiTkFNRSI7czoxMToi0ODn7OXwLCDx7C4iO3M6NDoiQ09ERSI7czo1OiJQUk9QMiI7czo1OiJWQUxVRSI7czoxMToiMjAg9SAxMCD1IDYiO319', '', 'catalog-item-delay-min-bx_3966226736_216_5e3f0cab039dd6f480b980eccecdd61e-224', '/')"
+                      title="Отложить" rel="nofollow"><i class="fa fa-heart-o"></i><i class="fa fa-check"></i></a>
+                  </div>
+        
+                </div>
+              </div>
+        
+            </div>
+            <div class="catalog-item-card" id="bx_3966226736_249_322f8aa86f325524b0909a6c735ef210" data-entity="item"
+              style="height: 499px;">
+        
+              <div class="catalog-item-info">
+                <button type="button" id="bx_3966226736_249_322f8aa86f325524b0909a6c735ef210_quick_view" class="quick_view"
+                  data-action="view" name="quick_view">
+                  <i class="fa fa-eye"></i>
+                  <span> Быстрый просмотр</span>
+                </button>
+                <div class="item-image-cont">
+                  <div class="item-image">
+                    <a href="/catalog/elektroinstrumenty/komplekt-elektroinstrumenta-1/">
+                      <img class="item_img" src="/image/cache/catalog/products/t00000029351-228x228.JPG" width="178"
+                        height="178" alt="Комплект электроинструмента №1" title="Комплект электроинструмента №1">
+        
+                      <span class="sticker">
+                      </span>
+                      <img class="manufacturer" src="/image/cache/catalog/manufacturiers/266728-120x50.png" width="69"
+                        height="24" alt="Bosch" title="Bosch">
+                    </a>
+                  </div>
+                </div>
+                <div class="item-all-title">
+                  <a class="item-title" href="/catalog/elektroinstrumenty/komplekt-elektroinstrumenta-1/"
+                    title="Комплект электроинструмента №1">
+                    Комплект электроинструмента №1 </a>
+                </div>
+                <div class="article_rating">
+                  <div class="article">
+                    Артикул: - </div>
+                  <div class="rating">
+                    <div class="star voted" title="1"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="2"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="3"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="4"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="5"><i class="fa fa-star"></i></div>
+                  </div>
+                  <div class="clr"></div>
+                </div>
+                <div class="item-desc">
+                </div>
+                <div class="item-price-cont">
+                  <div class="item-price">
+                    <span class="catalog-item-price">
+                      20 900 <span class="unit">
+                        руб. <span>за 1 шт</span>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+        
+        
+                <div class="buy_more">
+                  <div class="available">
+        
+        
+                    <div class="avl">
+                      <i class="fa fa-check-circle"></i>
+                      <span>
+                        В наличии много </span>
+                    </div>
+        
+                  </div>
+                  <div class="add2basket_block">
+                    <form action="/ajax/add2basket.php" class="add2basket_form">
+                      <a href="javascript:void(0)" class="minus"
+                        id="quantity_minus_bx_3966226736_249_322f8aa86f325524b0909a6c735ef210"><span>-</span></a>
+                      <input type="text" id="quantity_bx_3966226736_249_322f8aa86f325524b0909a6c735ef210" name="quantity"
+                        class="quantity" value="1">
+                      <a href="javascript:void(0)" class="plus"
+                        id="quantity_plus_bx_3966226736_249_322f8aa86f325524b0909a6c735ef210"><span>+</span></a>
+                      <input type="hidden" name="ID" value="249">
+                      <button type="button" id="bx_3966226736_249_322f8aa86f325524b0909a6c735ef210_btn_buy" class="btn_buy"
+                        name="add2basket"><i class="fa fa-shopping-cart"></i><span>В корзину</span></button>
+                    </form>
+        
+                  </div>
+                  <div class="clr"></div>
+                  <div class="compare">
+                    <a href="javascript:void(0)" class="catalog-item-compare"
+                      id="catalog_add2compare_link_bx_3966226736_249_322f8aa86f325524b0909a6c735ef210"
+                      onclick="return addToCompare('/catalog/compare/?action=ADD_TO_COMPARE_LIST&amp;id=249', 'catalog_add2compare_link_bx_3966226736_249_322f8aa86f325524b0909a6c735ef210', '/');"
+                      title="Добавить к сравнению" rel="nofollow"><i class="fa fa-bar-chart"></i><i class="fa fa-check"></i></a>
+                  </div>
+                  <div class="delay">
+                    <a href="javascript:void(0)" id="catalog-item-delay-bx_3966226736_249_322f8aa86f325524b0909a6c735ef210"
+                      class="catalog-item-delay"
+                      onclick="return addToDelay('249', 'quantity_bx_3966226736_249_322f8aa86f325524b0909a6c735ef210', '', '', 'catalog-item-delay-bx_3966226736_249_322f8aa86f325524b0909a6c735ef210', '/')"
+                      title="Отложить" rel="nofollow"><i class="fa fa-heart-o"></i><i class="fa fa-check"></i></a>
+                  </div>
+        
+                </div>
+              </div>
+        
+            </div>
+            <div class="catalog-item-card" id="bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42" data-entity="item"
+              style="height: 499px;">
+        
+              <div class="catalog-item-info">
+                <button type="button" id="bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42_quick_view" class="quick_view"
+                  data-action="view" name="quick_view">
+                  <i class="fa fa-eye"></i>
+                  <span> Быстрый просмотр</span>
+                </button>
+                <div class="item-image-cont">
+                  <div class="item-image">
+                    <a href="/catalog/trotuarnaya-plitka/kirpich-vibropressovanyy/">
+                      <img class="item_img" src="/image/cache/catalog/products/t00000029351-228x228.JPG"
+                        width="178" height="178" alt="Кирпич вибропрессованый" title="Кирпич вибропрессованый">
+        
+                      <span class="sticker">
+                      </span>
+                    </a>
+                  </div>
+                </div>
+                <div class="item-all-title">
+                  <a class="item-title" href="/catalog/trotuarnaya-plitka/kirpich-vibropressovanyy/"
+                    title="Кирпич вибропрессованый">
+                    Кирпич вибропрессованый </a>
+                </div>
+                <div class="article_rating">
+                  <div class="article">
+                    Артикул: - </div>
+                  <div class="rating">
+                    <div class="star voted" title="1"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="2"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="3"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="4"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="5"><i class="fa fa-star"></i></div>
+                  </div>
+                  <div class="clr"></div>
+                </div>
+                <div class="item-desc">
+                  Вибропрессованый кирпич для укладки тротуарной плитки изготовлен на автоматическом оборудовании из цемента
+                  марки М500. Срок службы 70 лет. </div>
+                <div class="item-price-cont">
+                  <div class="item-price">
+                    <span class="catalog-item-price">
+                      <span class="from">От</span> 290 <span class="unit">
+                        руб. <span>за 1 шт</span>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+        
+        
+                <div class="buy_more">
+                  <div class="available">
+        
+        
+                    <div class="avl">
+                      <i class="fa fa-check-circle"></i>
+                      <span>
+                        В наличии много </span>
+                    </div>
+        
+                  </div>
+        
+                  <div class="add2basket_block">
+                    <form action="javascript:void(0)" class="add2basket_form">
+                      <a href="javascript:void(0)" class="minus"
+                        id="quantity_minus_bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42"><span>-</span></a>
+        
+                      <input type="text" id="quantity_bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42" name="quantity"
+                        class="quantity" value="1">
+                      <a href="javascript:void(0)" class="plus"
+                        id="quantity_plus_bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42"><span>+</span></a>
+                      <button type="button" id="bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42_props_btn" class="btn_buy"
+                        name="add2basket"><i class="fa fa-shopping-cart"></i><span>В корзину</span></button>
+                    </form>
+                  </div>
+                  <div class="clr"></div>
+                  <div class="compare">
+                    <a href="javascript:void(0)" class="catalog-item-compare"
+                      id="catalog_add2compare_link_bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42"
+                      onclick="return addToCompare('/catalog/compare/?action=ADD_TO_COMPARE_LIST&amp;id=215', 'catalog_add2compare_link_bx_3966226736_215_cb49123d9d01f4f1e15216b03c62ec42', '/');"
+                      title="Добавить к сравнению" rel="nofollow"><i class="fa fa-bar-chart"></i><i class="fa fa-check"></i></a>
+                  </div>
+        
+                </div>
+              </div>
+        
+            </div>
+            <div class="catalog-item-card item-pm" id="bx_3966226736_155_6baadf0827347a444fba40869b27e6f5" data-entity="item"
+              style="height: 499px;">
+        
+              <div class="catalog-item-info">
+                <button type="button" id="bx_3966226736_155_6baadf0827347a444fba40869b27e6f5_quick_view" class="quick_view"
+                  data-action="view" name="quick_view">
+                  <i class="fa fa-eye"></i>
+                  <span> Быстрый просмотр</span>
+                </button>
+                <div class="item-image-cont">
+                  <div class="item-image">
+                    <a
+                      href="/catalog/akkumuljatornye-shurupoverty-i-dreli/akkumulyatornaya-drel-vintovert-dewalt-xr-li-ion-18-0v/">
+                      <img class="item_img" src="/image/cache/catalog/products/t00000029351-228x228.JPG"
+                        width="178" height="178" alt="Аккумуляторная дрель-винтоверт DeWALT XR Li-Ion, 18,0В"
+                        title="Аккумуляторная дрель-винтоверт DeWALT XR Li-Ion, 18,0В">
+        
+                      <span class="sticker">
+                      </span>
+                      <img class="manufacturer" src="/image/cache/catalog/manufacturiers/266728-120x50.png" width="69"
+                        height="24" alt="DeWalt" title="DeWalt">
+                    </a>
+                  </div>
+                </div>
+                <div class="item-all-title">
+                  <a class="item-title"
+                    href="/catalog/akkumuljatornye-shurupoverty-i-dreli/akkumulyatornaya-drel-vintovert-dewalt-xr-li-ion-18-0v/"
+                    title="Аккумуляторная дрель-винтоверт DeWALT XR Li-Ion, 18,0В">
+                    Аккумуляторная дрель-винтоверт DeWALT XR Li-Ion, 18,0В </a>
+                </div>
+                <div class="article_rating">
+                  <div class="article">
+                    Артикул: DCD780C2 </div>
+                  <div class="rating">
+                    <div class="star voted" title="1"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="2"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="3"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="4"><i class="fa fa-star"></i></div>
+                    <div class="star voted" title="5"><i class="fa fa-star"></i></div>
+                  </div>
+                  <div class="clr"></div>
+                </div>
+                <div class="item-desc">
+                  Мощная 18,0 В XR Li-Ion компактная дрель-шуруповерт последнего поколения с новыми уникальными аккумуляторами
+                  технологии XR Li-Ion. </div>
+                <div class="item-price-cont">
+                  <div class="item-price">
+                    <span class="catalog-item-price">
+                      <span class="from">От</span>
+                      7 900 <span class="unit">
+                        руб. <span>за 1 шт</span>
+                      </span>
+                      <span class="catalog-item-price-ranges-wrap">
+                        <a id="bx_3966226736_155_6baadf0827347a444fba40869b27e6f5_price_ranges_btn"
+                          class="catalog-item-price-ranges" href="javascript:void(0);"><i
+                            class="fa fa-question-circle-o"></i></a>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div class="catalog-price-ranges">
+                  <div class="catalog-detail-price-ranges__row">
+                    <div class="catalog-detail-price-ranges__sort">
+                      Розница </div>
+                    <div class="catalog-detail-price-ranges__dots"></div>
+                    <span class="from">От</span>
+        
+                    <div class="catalog-detail-price-ranges__price">8200</div>
+                    <span class="unit"> руб.</span>
+                    <span class="catalog-item-price-ranges-wrap">
+                      <a id="bx_3966226736_155_6baadf0827347a444fba40869b27e6f5_price_ranges_btn_1" data-key="1"
+                        class="catalog-item-price-ranges" href="javascript:void(0);">
+                        <i class="fa fa-question-circle-o"></i>
+                      </a>
+                    </span>
+                  </div>
+                  <div class="catalog-detail-price-ranges__row">
+                    <div class="catalog-detail-price-ranges__sort">
+                      Опт </div>
+                    <div class="catalog-detail-price-ranges__dots"></div>
+                    <span class="from">От</span>
+        
+                    <div class="catalog-detail-price-ranges__price">7900</div>
+                    <span class="unit"> руб.</span>
+                    <span class="catalog-item-price-ranges-wrap">
+                      <a id="bx_3966226736_155_6baadf0827347a444fba40869b27e6f5_price_ranges_btn_2" data-key="2"
+                        class="catalog-item-price-ranges" href="javascript:void(0);">
+                        <i class="fa fa-question-circle-o"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+        
+        
+                <div class="buy_more">
+                  <div class="available">
+        
+        
+                    <div class="avl">
+                      <i class="fa fa-check-circle"></i>
+                      <span>
+                        В наличии много </span>
+                    </div>
+        
+                  </div>
+                  <div class="add2basket_block">
+                    <form action="javascript:void(0)" class="add2basket_form">
+                      <a href="javascript:void(0)" class="minus"
+                        id="quantity_minus_bx_3966226736_155_6baadf0827347a444fba40869b27e6f5"><span>-</span></a>
+                      <input type="text" id="quantity_bx_3966226736_155_6baadf0827347a444fba40869b27e6f5" name="quantity"
+                        class="quantity" value="1">
+                      <a href="javascript:void(0)" class="plus"
+                        id="quantity_plus_bx_3966226736_155_6baadf0827347a444fba40869b27e6f5"><span>+</span></a>
+                      <button type="button" id="bx_3966226736_155_6baadf0827347a444fba40869b27e6f5_props_btn" class="btn_buy"
+                        name="add2basket"><i class="fa fa-shopping-cart"></i><span>В корзину</span></button>
+                    </form>
+        
+                  </div>
+                  <div class="clr"></div>
+                  <div class="compare">
+                    <a href="javascript:void(0)" class="catalog-item-compare"
+                      id="catalog_add2compare_link_bx_3966226736_155_6baadf0827347a444fba40869b27e6f5"
+                      onclick="return addToCompare('/catalog/compare/?action=ADD_TO_COMPARE_LIST&amp;id=155', 'catalog_add2compare_link_bx_3966226736_155_6baadf0827347a444fba40869b27e6f5', '/');"
+                      title="Добавить к сравнению" rel="nofollow"><i class="fa fa-bar-chart"></i><i class="fa fa-check"></i></a>
+                  </div>
+                  <div class="delay">
+                    <a href="javascript:void(0)" id="catalog-item-delay-bx_3966226736_155_6baadf0827347a444fba40869b27e6f5"
+                      class="catalog-item-delay"
+                      onclick="return addToDelay('155', 'quantity_bx_3966226736_155_6baadf0827347a444fba40869b27e6f5', 'YToxOntpOjA7YTozOntzOjQ6Ik5BTUUiO3M6NzoiwPDy6Orz6yI7czo0OiJDT0RFIjtzOjk6IkFSVE5VTUJFUiI7czo1OiJWQUxVRSI7czo4OiJEQ0Q3ODBDMiI7fX0,', '', 'catalog-item-delay-bx_3966226736_155_6baadf0827347a444fba40869b27e6f5', '/')"
+                      title="Отложить" rel="nofollow"><i class="fa fa-heart-o"></i><i class="fa fa-check"></i></a>
+                  </div>
+        
+                </div>
+              </div>
+        
+            </div>
+          </div>
+          <div class="clr"></div>
+        </div>
+
+   
+  </div>
+  </div>
+  </div>    
+</div>  
+
+
+
+  {{ footer }}
+
+
+
+
+
+
+
+{#}
+
+
+
 <div id="checkout-cart" class="container">
   <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
@@ -116,4 +817,4 @@
       {{ content_bottom }}</div>
     {{ column_right }}</div>
 </div>
-{{ footer }} 
+#}

@@ -6,6 +6,8 @@ $(function ($) {
 		var $t = $(this).text().replace(/(\d)(?=(\d{3})+([^\d]|$))/g, "$1 ");
 		$(this).text($t);
 	})
+	
+	$('.image-link').magnificPopup({type:'image'});
 
 	$('.popup-youtube').click(function(e) {
 		e.preventDefault();
@@ -33,8 +35,53 @@ $(function ($) {
 		});
 	});
 
+	$( document ).on( "click", ".quick_view", function() { 
 
+		var $this = $(this),
+			$product_id = $this.data('product_id');
+/*		$('#fastview_modal').load('index.php?route=product/product/fastview&product_id='+$product_id, function(){
+			
+			setTimeout(function () {
+					show_message_modal_by_id('fastview_modal');
+			}, 100);
+		});
+*/
+		$.magnificPopup.open({
+			tLoading: 'Загрузка...',
+			mainClass: 'mfp-fastview',
+			items: {
+				src: 'index.php?route=product/product/fastview&product_id=' + $product_id,
+				type: 'ajax'
+			},
+			midClick: true,
+			removalDelay: 200
+		});
 
+	});
+	$( document ).on( "click", ".mfp-close", function() { 
+		$.magnificPopup.close();
+	});
+
+	$( document ).on( "click", "a.plus", function() { 
+		var inp = $(this).prev();
+		var value = inp.val()*1;
+		var limit =  inp.data('limit');
+		console.log(value)
+		if(limit){
+			if(value < limit) inp.val(value+1);
+		}
+	});
+	
+	$( document ).on( "click", "a.minus", function() { 
+		var inp = $(this).next();
+		var value = inp.val()*1;
+		console.log(value)
+		var limit =  inp.data('limit');
+		
+		if(limit){
+			if(value > 1) inp.val(value-1);
+		}
+	});	
 }); 
 
 /*
@@ -602,11 +649,27 @@ $.ajax({
 	}
 
 	function doLiveSearch(a, b) {
+		//if(b.length < 3) return;
 		return 38 != a.keyCode && 40 != a.keyCode && ($("#livesearch_search_results").remove(), updown = -1, !("" == b || b.length < 3 || (b = encodeURI(b), $.ajax({
-			url: $("base").attr("href") + "index.php?route=product/search/ajax&keyword=" + b + "&filter_category_id=" + $('#search input[name=category_id]').val(),
+			url: $("base").attr("href") + "index.php?route=product/search/aj_search"  /*+ "&filter_category_id=" + $('#search input[name=category_id]').val()*/,
+			data: 'search=' + b ,
 			dataType: "json",
+			type: 'post',
+			beforeSend: function() {
+				view_preloder(true);
+				$('#cart > button').button('loading');
+			},
+			complete: function() {
+				$('#cart > button').button('reset');
+				view_preloder(false);
+			},
 			success: function (a) {
-				if (a.length > 0) {
+				console.log(a);
+					$('.aj-search-result').remove();
+					$('body').append(a)				
+				if (a.length > 0) { 
+
+/*
 					var c = document.createElement("ul");
 					c.id = "livesearch_search_results";
 					var d, e;
@@ -622,6 +685,8 @@ $.ajax({
 					$("#livesearch_search_results").length > 0 && $("#livesearch_search_results").remove(), $("#search").append(c), $("#livesearch_search_results").css("display", "none"), $("#livesearch_search_results").slideDown("slow"), $("#livesearch_search_results").animate({
 						backgroundColor: "rgba(255, 255, 255, 0.98)"
 					}, 2e3)
+*/
+
 				}
 			}
 		}), 0)))
@@ -768,10 +833,19 @@ $(document).ready(function () {
 			}, 800), !1
 		})
 	})
+
+	var timer = 0;
 	$("#search").find("[name=search]").first().keyup(function (a) {
-		doLiveSearch(a, this.value)
+		var $s = this.value;
+		clearTimeout(timer);
+		timer = setTimeout(
+			 function(){
+				
+				doLiveSearch(a, $s)
+			 }, 
+			 1000);
 	}).focus(function (a) {
-		doLiveSearch(a, this.value)
+		//doLiveSearch(a, this.value)
 	}).keydown(function (a) {
 		upDownEvent(a)
 	}).blur(function () {

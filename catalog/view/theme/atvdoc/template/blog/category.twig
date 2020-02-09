@@ -1,4 +1,105 @@
 {{ header }}
+
+<div class="content-wrapper">
+  <div class="center inner">
+    <div class="content">
+      <div class="left-column">
+
+        {{ column_left }}
+
+        {{ column_right }}
+
+
+      </div>
+
+      <div class="workarea {{ class }}" id="content">
+        <div class="body_text">
+
+          <div class="breadcrumb-share">
+          
+            <div id="navigation" class="breadcrumb">
+              <div class="breadcrumb__item" id="breadcrumb_0" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a
+                  class="breadcrumb__link" href="/" title="Главная" itemprop="url"><i
+                    class="fa fa-home breadcrumb__icon_main"></i><span class="breadcrumb__title_main"
+                    itemprop="title">Главная</span></a></div>
+              <div class="breadcrumb__item"><span class="breadcrumb__arrow"></span><span class="breadcrumb__title">Новости</span>
+              </div>
+            </div>
+
+          </div>
+
+
+          </div>
+
+        <h1 id="pagetitle">{{ heading_title }}</h1>
+        {{ content_top }}
+
+        <div class="news-list">
+
+          {% for article in articles %}
+
+          <a class="news__item" href="{{ article.href }}">
+            <span class="news__item-image-wrap">
+              <span class="news__item-image" alt="{{ article.name }}" title="{{ article.name }}"
+                style="background-image:url('{{ article.thumb }}');"></span>
+            </span>
+            <span class="news__item-block">
+              <span class="news__item-date">{{ article.date_added }}</span>
+              <span class="news__item-title">{{ article.name }}</span>
+              <span class="news__item-text">
+                <p>{{ article['description'] }}</p>
+              </span>
+            </span>
+          </a>
+
+         {% endfor %}
+
+
+         
+
+         <div class="catalog_pagination" data-pagination-num="1">
+    
+          <div class="pagination">
+            
+            {{ pagination }}
+          
+          </div>
+        
+        {# <div class="col-sm-6 text-right">{{ results }}</div> #}
+        </div>
+        
+        </div>
+
+
+
+   
+    {% if not categories and not products %}
+    <p>{{ text_empty }}</p>
+
+    <!-- items-container -->
+
+    {% endif %}
+
+
+
+        {{ content_bottom }}
+      
+   
+  </div>
+  </div>
+  </div>    
+
+
+
+{{ footer }}
+
+
+
+
+{#}
+
+
+
 <div class="container">
   <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
@@ -101,4 +202,5 @@
       {{ content_bottom }}</div>
     {{ column_right }}</div>
 </div>
-{{ footer }}
+
+#}

@@ -4,6 +4,7 @@
 
 class ControllerProductManufacturer extends Controller {
 	public function index() {
+
 		$this->load->language('product/manufacturer');
 
 		$this->load->model('catalog/manufacturer');
@@ -41,6 +42,7 @@ class ControllerProductManufacturer extends Controller {
 
 			$data['categories'][$key]['manufacturer'][] = array(
 				'name' => $result['name'],
+				'image' =>  $this->model_tool_image->resize($result['image'], 120, 50),
 				'href' => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $result['manufacturer_id'])
 			);
 		}
@@ -219,8 +221,12 @@ class ControllerProductManufacturer extends Controller {
 					'product_id'  => $result['product_id'],
 					'thumb'       => $image,
 					'name'        => $result['name'],
+					'quantity' =>  $result['quantity'],
+
 					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
 					'price'       => $price,
+					'price_not_formated' => number_format( $this->tax->calculate($result['price'], $result['tax_class_id'], $this->config->get('config_tax')), 0, '.', ' ').' руб.',
+
 					'special'     => $special,
 					'tax'         => $tax,
 					'minimum'     => $result['minimum'] > 0 ? $result['minimum'] : 1,
@@ -242,13 +248,24 @@ class ControllerProductManufacturer extends Controller {
 				'value' => 'p.sort_order-ASC',
 				'href'  => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.sort_order&order=ASC' . $url)
 			);
-
+			if( $sort == 'p.sort_order'){
+				if($order == 'ASC') $data['sort_sort_order'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.sort_order&order=DESC' . $url);
+				else  $data['sort_sort_order'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.sort_order&order=ASC' . $url);
+			}else{
+				$data['sort_sort_order'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.sort_order&order=ASC' . $url);
+			}
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_name_asc'),
 				'value' => 'pd.name-ASC',
 				'href'  => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=pd.name&order=ASC' . $url)
 			);
 
+			if( $sort == 'p.name'){
+				if($order == 'ASC') $data['sort_sort_name'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.name&order=DESC' . $url);
+				else  $data['sort_sort_name'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.name&order=ASC' . $url);
+			}else{
+				$data['sort_sort_name'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.name&order=ASC' . $url);
+			}
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_name_desc'),
 				'value' => 'pd.name-DESC',
@@ -260,7 +277,12 @@ class ControllerProductManufacturer extends Controller {
 				'value' => 'p.price-ASC',
 				'href'  => $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.price&order=ASC' . $url)
 			);
-
+			if( $sort == 'p.price'){
+				if($order == 'ASC') $data['sort_sort_price'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.price&order=DESC' . $url);
+				else  $data['sort_sort_price'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.price&order=ASC' . $url);
+			}else{
+				$data['sort_sort_price'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $this->request->get['manufacturer_id'] . '&sort=p.price&order=ASC' . $url);
+			}
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_price_desc'),
 				'value' => 'p.price-DESC',
